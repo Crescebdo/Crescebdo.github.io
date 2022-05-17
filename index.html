@@ -79,7 +79,7 @@
         });
         var predict = function (input) {
             if (window.model) {
-                window.model.predict([tf.tensor(input).reshape([80, 100, 3])]).array().then(function (scores) {
+                window.model.predict([tf.tensor(input).reshape([1, 80, 100, 3])]).array().then(function (scores) {
                     $('#number').html(scores);
                 });
             } else {
