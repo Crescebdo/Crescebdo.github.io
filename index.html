@@ -44,7 +44,7 @@
 <body>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.5.2/dist/tf.min.js"></script>
-    <h1>IZE Image Recognition App 2</h1>
+    <h1>IZE Image Recognition App</h1>
     <div id="upload">
         <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
     </div>
@@ -69,8 +69,11 @@
             }
             data = context.getImageData(0, 0, 80, 100).data;
             rgbArray = []
-            for (var i = 0; i < data.length; i += 4) {
-                rgbArray.push([data[i], data[i + 1], data[i + 2]])
+            for (var col = 0; col < 100; col++) {
+                for (var row = 0; row < 80; row++) {
+                    var hook = (row * 100 + col) * 4;
+                    rgbArray.push([data[hook], data[hook + 1], data[hook + 2]])
+                }
             }
             predict(rgbArray);
         };
@@ -79,7 +82,7 @@
         });
         var predict = function (input) {
             if (window.model) {
-                window.model.predict([tf.tensor(input).reshape([-1, 80, 100, 3])]).array().then(function (scores) {
+                window.model.predict([tf.tensor(input).reshape([1, 100, 80, 3])]).array().then(function (scores) {
                     $('#number').html(scores);
                 });
             } else {
