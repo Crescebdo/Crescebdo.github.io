@@ -1,18 +1,95 @@
 <!DOCTYPE HTML>
 <html>
 
-<body>
+<head>
+    <style>
+        body {
+            font-family: "Arial";
+        }
 
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #upload {
+            text-align-last: center;
+            margin-top: 30px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #paint {
+            text-align: center;
+            margin-top: 30px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #myCanvas {
+            border: 3px solid red;
+        }
+
+        #predicted {
+            text-align: center;
+            margin-top: 30px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.5.2/dist/tf.min.js"></script>
+    <h1>IZE Image Recognition App</h1>
+    <div id="upload">
+        <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
+    </div>
+    <div id="paint">
+        <canvas id="myCanvas"></canvas>
+    </div>
+    <div id="predicted">
+        Recognized Plant
+        <div id="number"></div>
+    </div>
     <script>
+        var canvas = document.getElementById('myCanvas'),
+            context = canvas.getContext('2d');
+        canvas.width = 80;
+        canvas.height = 100;
         var loadFile = function (event) {
-            var image = document.getElementById('output');
-            image.src = URL.createObjectURL(event.target.files[0]);
+            base_image = new Image();
+            base_image.src = URL.createObjectURL(event.target.files[0]);
+            base_image.onload = function () {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(base_image, 0, 0, 80, 100);
+            }
+            data = context.getImageData(0, 0, 80, 100).data;
+            rgbArray = []
+            for (var i = 0; i < data.length; i += 4) {
+                rgbArray.push([data[i], data[i + 1], data[i + 2]])
+            }
+            predict(rgbArray);
         };
+        tf.loadLayersModel('model/model.json').then(function (model) {
+            window.model = model;
+        });
+        var predict = function (input) {
+            if (window.model) {
+                window.model.predict([tf.tensor(input).reshape([80, 100, 3])]).array().then(function (scores) {
+                    $('#number').html(scores);
+                });
+            } else {
+                // The model takes a bit to load, if we are too fast, wait
+                setTimeout(function () { predict(input) }, 50);
+            }
+        }
     </script>
 
-    <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
-    <br />
-    <img id="output" width="80" />
+
 
 </body>
 
