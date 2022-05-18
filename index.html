@@ -40,6 +40,10 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        #result {
+            border: 1px solid grey;
+        }
     </style>
 </head>
 
@@ -128,11 +132,14 @@
             drawLinesToCanvas(context);
         }
 
+        const codes = [" ", "1", "h", "o", "t", "b", "z", "2", "p", "d", "x", "w", "3", "_", "j", "l", "5", "c", "y", "s"];
         // formalize result
-        var format = function (result) {
+        var formalize = function (result) {
             var str = "";
             for (var i = 0; i < 5; i++) {
-                for (var j = 0; j < 5; j++) str += result[i * 5 + j] + ", ";
+                for (var j = 0; j < 5; j++) {
+                    str += codes[result[i * 5 + j]];
+                }
                 str += "\n";
             }
             return str;
@@ -142,6 +149,7 @@
             window.model = model;
         });
         const plants = ["Empty", "Peashooter", "Sunflower", "Wall-nut", "Potato Mine", "Snow Pea", "Chomper", "Repeater", "Puff-shroom", "Fume-shroom", "Scaredy-shroom", "Squash", "Threepeater", "Spikeweed", "Torchwood", "Split Pea", "Starfruit", "Magnet-shroom", "Kernel-pult", "Umbrella Leaf"];
+
         var predict = function (input) {
             if (window.model) {
                 var output = []
@@ -149,11 +157,11 @@
                     window.model.predict([tf.tensor(element).reshape([1, 100, 80, 3])]).array().then(function (scores) {
                         var scrs = scores[0]
                         var predicted = scrs.indexOf(Math.max(...scrs));
-                        output.push(plants[predicted]);
+                        output.push(predicted);
                         console.log(plants[predicted]);
                     });
                 });
-                $('#result').html(output.join(", "));
+                $('#result').text(formalize(output));
             } else {
                 // The model takes a bit to load, if we are too fast, wait
                 setTimeout(function () { return predict(input) }, 50);
