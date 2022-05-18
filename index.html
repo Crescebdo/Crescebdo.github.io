@@ -60,24 +60,55 @@
     <script>
         var canvas = document.getElementById('myCanvas'),
             context = canvas.getContext('2d');
-        canvas.width = 80;
-        canvas.height = 100;
+        canvas.width = 800;
+        canvas.height = 600;
+
+        // Upload file handler
         var loadFile = function (event) {
             base_image = new Image();
             base_image.src = URL.createObjectURL(event.target.files[0]);
             base_image.onload = function () {
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                context.drawImage(base_image, 0, 0, 80, 100);
+                drawImageToCanvas(context, base_image);
                 process(context);
             }
         };
-        var process = function (context) {
-            data = context.getImageData(0, 0, 80, 100).data;
-            var rgbArray = []
-            for (var i = 0; i < data.length; i += 4) {
-                rgbArray.push([data[i], data[i + 1], data[i + 2]])
+
+        // Draw original image to canvas
+        var drawImageToCanvas = function (context, image) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            scale = base_image.width / 800.0
+            scaled_height = Math.trunc(base_image.height / scale);
+            if (scaled_height <= 600) {
+                context.drawImage(base_image, 0, 0, base_image.width, base_image.height);
+            } else {
+                cutoff_height = base_image.height - scale * 600;
+                context.drawImage(base_image, 0, cutoff_height, base_image.width, base_image.height);
             }
-            predict(rgbArray);
+        }
+
+        // Draw additional lines to canvas
+        var drawLinesToCanvas = function (ctx) {
+            ctx.strokeStyle = '#ff0000';
+            ctx.strokeRect(40, 70, 400, 500);
+            ctx.beginPath();
+            for (i = 1; i <= 4; i++) {
+                ctx.moveTo(40, 70 + i * 100);
+                ctx.lineTo(440, 70 + i * 100);
+                ctx.moveTo(40 + i * 80, 70);
+                ctx.lineTo(40 + i * 80, 570);
+            }
+            ctx.stroke();
+        }
+
+        // Process image data and draw additional lines to canvas
+        var process = function (context) {
+            data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+            drawLinesToCanvas(context);
+            // var rgbArray = []
+            // for (var i = 0; i < data.length; i += 4) {
+            //     rgbArray.push([data[i], data[i + 1], data[i + 2]])
+            // }
+            // predict(rgbArray);
         }
         tf.loadLayersModel('model/model.json').then(function (model) {
             window.model = model;
@@ -97,18 +128,15 @@
         }
 
         // Clipboard Function
-        var CLIPBOARD = new CLIPBOARD_CLASS("myCanvas", false);
+        var CLIPBOARD = new CLIPBOARD_CLASS("myCanvas");
 
         /**
          * image pasting into canvas
          * 
          * @param {string} canvas_id - canvas id
-         * @param {boolean} autoresize - if canvas will be resized
          */
-        function CLIPBOARD_CLASS(canvas_id, autoresize) {
+        function CLIPBOARD_CLASS(canvas_id) {
             var _self = this;
-            var canvas = document.getElementById(canvas_id);
-            var ctx = document.getElementById(canvas_id).getContext("2d");
 
             //handlers
             document.addEventListener('paste', function (e) { _self.paste_auto(e); }, false);
@@ -140,17 +168,8 @@
             this.paste_createImage = function (source) {
                 var pastedImage = new Image();
                 pastedImage.onload = function () {
-                    if (autoresize == true) {
-                        //resize
-                        canvas.width = pastedImage.width;
-                        canvas.height = pastedImage.height;
-                    }
-                    else {
-                        //clear canvas
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    }
-                    ctx.drawImage(pastedImage, 0, 0, 80, 100);
-                    process(ctx);
+                    drawImageToCanvas(context, pastedImage);
+                    process(context);
                 };
                 pastedImage.src = source;
             };
