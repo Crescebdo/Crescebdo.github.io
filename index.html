@@ -30,8 +30,8 @@
 
         #myCanvas {
             border: 3px solid grey;
-            width: 800px;
-            height: 600px;
+            width: 533px;
+            height: 400px;
         }
 
         #predicted {
@@ -144,15 +144,16 @@
         const plants = ["Empty", "Peashooter", "Sunflower", "Wall-nut", "Potato Mine", "Snow Pea", "Chomper", "Repeater", "Puff-shroom", "Fume-shroom", "Scaredy-shroom", "Squash", "Threepeater", "Spikeweed", "Torchwood", "Split Pea", "Starfruit", "Magnet-shroom", "Kernel-pult", "Umbrella Leaf"];
         var predict = function (input) {
             if (window.model) {
-                var result = []
+                var output = []
                 input.forEach(element => {
                     window.model.predict([tf.tensor(element).reshape([1, 100, 80, 3])]).array().then(function (scores) {
                         var scrs = scores[0]
                         var predicted = scrs.indexOf(Math.max(...scrs));
-                        result.push(plants[predicted]);
+                        output.push(plants[predicted]);
+                        console.log(plants[predicted]);
                     });
                 });
-                $('#result').html(result.join(", "));
+                $('#result').html(output.join(", "));
             } else {
                 // The model takes a bit to load, if we are too fast, wait
                 setTimeout(function () { return predict(input) }, 50);
