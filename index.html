@@ -44,7 +44,7 @@
 <body>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.5.2/dist/tf.min.js"></script>
-    <h1>IZE Image Recognition (alpha)</h1>
+    <h1>IZE Image Recognition (alpha )</h1>
     <div id="upload">
         <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
         <p>You can paste the image (Ctrl+V) too.</p>
@@ -175,7 +175,8 @@
                 var pastedImage = new Image();
                 pastedImage.src = source;
                 pastedImage.onload = function () {
-                    drawImageToCanvas(ctx, pastedImage);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(pastedImage, 0, 0, 800, 600);
                     process(ctx);
                 };
             };
