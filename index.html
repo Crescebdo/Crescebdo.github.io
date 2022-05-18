@@ -44,6 +44,8 @@
         #output {
             width: 120px;
             height: 120px;
+            text-align: center;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -61,7 +63,7 @@
     </div>
     <div id="predicted">
         <p>Recognition Result</p>
-        <textarea id="output" readonly></textarea>
+        <textarea id="output" readonly>text</textarea>
     </div>
     <script>
         var canvas = document.getElementById('myCanvas'),
@@ -159,7 +161,7 @@
                         var scrs = scores[0]
                         var predicted = scrs.indexOf(Math.max(...scrs));
                         output.push(predicted);
-                        console.log(plants[predicted]);
+                        //console.log(plants[predicted]);
                     });
                 });
                 var timeout = setInterval(function () {
