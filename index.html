@@ -44,9 +44,10 @@
 <body>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.5.2/dist/tf.min.js"></script>
-    <h1>IZE Image Recognition alpha</h1>
+    <h1>IZE Image Recognition (alpha)</h1>
     <div id="upload">
         <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
+        <p>You can paste the image (Ctrl+V) too.</p>
     </div>
     <div id="paint">
         <canvas id="myCanvas"></canvas>
@@ -67,14 +68,17 @@
             base_image.onload = function () {
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 context.drawImage(base_image, 0, 0, 80, 100);
-                data = context.getImageData(0, 0, 80, 100).data;
-                var rgbArray = []
-                for (var i = 0; i < data.length; i += 4) {
-                    rgbArray.push([data[i], data[i + 1], data[i + 2]])
-                }
-                predict(rgbArray);
+                process(context);
             }
         };
+        var process = function (context) {
+            data = context.getImageData(0, 0, 80, 100).data;
+            var rgbArray = []
+            for (var i = 0; i < data.length; i += 4) {
+                rgbArray.push([data[i], data[i + 1], data[i + 2]])
+            }
+            predict(rgbArray);
+        }
         tf.loadLayersModel('model/model.json').then(function (model) {
             window.model = model;
         });
@@ -91,6 +95,67 @@
                 setTimeout(function () { predict(input) }, 50);
             }
         }
+
+        // Clipboard Function
+        var CLIPBOARD = new CLIPBOARD_CLASS("myCanvas", false);
+
+        /**
+         * image pasting into canvas
+         * 
+         * @param {string} canvas_id - canvas id
+         * @param {boolean} autoresize - if canvas will be resized
+         */
+        function CLIPBOARD_CLASS(canvas_id, autoresize) {
+            var _self = this;
+            var canvas = document.getElementById(canvas_id);
+            var ctx = document.getElementById(canvas_id).getContext("2d");
+
+            //handlers
+            document.addEventListener('paste', function (e) { _self.paste_auto(e); }, false);
+
+            //on paste
+            this.paste_auto = function (e) {
+                if (e.clipboardData) {
+                    var items = e.clipboardData.items;
+                    if (!items) return;
+
+                    //access data directly
+                    var is_image = false;
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf("image") !== -1) {
+                            //image
+                            var blob = items[i].getAsFile();
+                            var URLObj = window.URL || window.webkitURL;
+                            var source = URLObj.createObjectURL(blob);
+                            this.paste_createImage(source);
+                            is_image = true;
+                        }
+                    }
+                    if (is_image == true) {
+                        e.preventDefault();
+                    }
+                }
+            };
+            //draw pasted image to canvas
+            this.paste_createImage = function (source) {
+                var pastedImage = new Image();
+                pastedImage.onload = function () {
+                    if (autoresize == true) {
+                        //resize
+                        canvas.width = pastedImage.width;
+                        canvas.height = pastedImage.height;
+                    }
+                    else {
+                        //clear canvas
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+                    ctx.drawImage(pastedImage, 0, 0);
+                    process(ctx);
+                };
+                pastedImage.src = source;
+            };
+        }
+
     </script>
 
 
