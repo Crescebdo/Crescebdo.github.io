@@ -56,12 +56,12 @@
     </div>
     <div id="predicted">
         Recognized Plant
-        <div id="number"></div>
-        <div id="best"></div>
+        <div id="result"></div>
     </div>
     <script>
         var canvas = document.getElementById('myCanvas'),
             context = canvas.getContext('2d');
+        var left = 40, top = 70;
         canvas.width = 800;
         canvas.height = 600;
 
@@ -91,13 +91,13 @@
         // Draw additional lines to canvas
         var drawLinesToCanvas = function (ctx) {
             ctx.strokeStyle = '#ff0000';
-            ctx.strokeRect(40, 70, 400, 500);
+            ctx.strokeRect(left, top, 400, 500);
             ctx.beginPath();
             for (i = 1; i <= 4; i++) {
-                ctx.moveTo(40, 70 + i * 100);
-                ctx.lineTo(440, 70 + i * 100);
-                ctx.moveTo(40 + i * 80, 70);
-                ctx.lineTo(40 + i * 80, 570);
+                ctx.moveTo(left, top + i * 100);
+                ctx.lineTo(left + 5 * 80, top + i * 100);
+                ctx.moveTo(left + i * 80, top);
+                ctx.lineTo(left + i * 80, top + 5 * 100);
             }
             ctx.stroke();
         }
@@ -106,45 +106,62 @@
         var process = function (context) {
             data = context.getImageData(0, 0, canvas.width, canvas.height).data;
             drawLinesToCanvas(context);
-            // for (i = 0; i < 5; i++) {
-            //     for (j = 0; j < 5; j++) {
-            //         var rgbArray = []
-            //         for (var i = 0; i < data.length; i += 4) {
-            //             rgbArray.push([data[i], data[i + 1], data[i + 2]])
-            //         }
-            //     }
-            // }
-
-            // predict(rgbArray);
+            rgbArray = []
+            for (i = 0; i < 5; i++) {
+                for (j = 0; j < 5; j++) {
+                    tempArray = []
+                    curr = (top * 800 + i * 100 * 800 + 40 + j * 80) * 4;
+                    for (k = 0; k < 100; k++) {
+                        for (l = curr; l < curr + 80 * 4; l += 4) {
+                            tempArray.push([data[l], data[l + 1], data[l + 2]]);
+                        }
+                        curr += 800 * 4;
+                    }
+                    rgbArray.push(tempArray)
+                }
+            }
+            predict(rgbArray);
         }
+
+        // formalize result
+        var format = function(result) {
+            str = "";
+            for (i = 0; i < 5; i++) {
+                for (j = 0; j < 5; j++) str += result[i * 5 + j] + ", ";
+                str += "\n";
+            }
+            return str;
+        }
+
         tf.loadLayersModel('model/model.json').then(function (model) {
             window.model = model;
         });
         const plants = ["Empty", "Peashooter", "Sunflower", "Wall-nut", "Potato Mine", "Snow Pea", "Chomper", "Repeater", "Puff-shroom", "Fume-shroom", "Scaredy-shroom", "Squash", "Threepeater", "Spikeweed", "Torchwood", "Split Pea", "Starfruit", "Magnet-shroom", "Kernel-pult", "Umbrella Leaf"];
         var predict = function (input) {
             if (window.model) {
-                window.model.predict([tf.tensor(input).reshape([1, 100, 80, 3])]).array().then(function (scores) {
-                    scores = scores[0]
-                    predicted = scores.indexOf(Math.max(...scores));
-                    $('#best').html(plants[predicted]);
+                result = []
+                input.forEach(element => {
+                    window.model.predict([tf.tensor(element).reshape([1, 100, 80, 3])]).array().then(function (scores) {
+                        scores = scores[0]
+                        predicted = scores.indexOf(Math.max(...scores));
+                        result.push(plants[predicted]);
+                    });
                 });
+                $('#result').html(format(result));
             } else {
                 // The model takes a bit to load, if we are too fast, wait
-                setTimeout(function () { predict(input) }, 50);
+                setTimeout(function () { return predict(input) }, 50);
             }
         }
 
         // Clipboard Function
-        var CLIPBOARD = new CLIPBOARD_CLASS("myCanvas");
+        var CLIPBOARD = new CLIPBOARD_CLASS();
 
         /**
          * image pasting into canvas
-         * 
-         * @param {string} canvas_id - canvas id
          */
-        function CLIPBOARD_CLASS(canvas_id) {
+        function CLIPBOARD_CLASS() {
             var _self = this;
-            var ctx = document.getElementById(canvas_id).getContext("2d");
 
             //handlers
             document.addEventListener('paste', function (e) { _self.paste_auto(e); }, false);
@@ -178,7 +195,7 @@
                 pastedImage.src = source;
                 pastedImage.onload = function () {
                     drawImageToCanvas(context, pastedImage);
-                    process(ctx);
+                    process(context);
                 };
             };
         }
