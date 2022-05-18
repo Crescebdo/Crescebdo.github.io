@@ -40,13 +40,18 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        #output {
+            width: 120px;
+            height: 120px;
+        }
     </style>
 </head>
 
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.5.2/dist/tf.min.js"></script>
-    <h1>IZE Image Recognition (alpha )</h1>
+    <h1>IZE Image Recognition (β)</h1>
     <div id="upload">
         <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
         <p>You can paste the image (Ctrl+V) too.</p>
@@ -59,15 +64,6 @@
         <textarea id="output" readonly></textarea>
     </div>
     <script>
-        // auto-height
-        $("textarea").each(function () {
-            this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
-        }).on("input", function () {
-            this.style.height = "auto";
-            this.style.height = (this.scrollHeight) + "px";
-        });
-
-
         var canvas = document.getElementById('myCanvas'),
             context = canvas.getContext('2d');
         var x_off = 40;
@@ -166,9 +162,12 @@
                         console.log(plants[predicted]);
                     });
                 });
-                console.log(output);
-                console.log(formalize(output));
-                $('#output').val(formalize(output));
+                var timeout = setInterval(function () {
+                    if (output.length == 25) {
+                        clearInterval(timeout);
+                        $('#output').val(formalize(output));
+                    }
+                }, 100);
             } else {
                 // The model takes a bit to load, if we are too fast, wait
                 setTimeout(function () { predict(input) }, 50);
