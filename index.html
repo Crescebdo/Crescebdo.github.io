@@ -55,7 +55,7 @@
         <canvas id="myCanvas"></canvas>
     </div>
     <div id="predicted">
-        Recognized Plant
+        <p>Recognition Result</p>
         <textarea id="output" readonly></textarea>
     </div>
     <script>
@@ -166,7 +166,9 @@
                         console.log(plants[predicted]);
                     });
                 });
-                $('#output').val('hi');
+                console.log(output);
+                console.log(formalize(output));
+                $('#output').val(formalize(output));
             } else {
                 // The model takes a bit to load, if we are too fast, wait
                 setTimeout(function () { predict(input) }, 50);
