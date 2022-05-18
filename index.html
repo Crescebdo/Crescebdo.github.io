@@ -67,13 +67,13 @@
             base_image.onload = function () {
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 context.drawImage(base_image, 0, 0, 80, 100);
+                data = context.getImageData(0, 0, 80, 100).data;
+                var rgbArray = []
+                for (var i = 0; i < data.length; i += 4) {
+                    rgbArray.push([data[i], data[i + 1], data[i + 2]])
+                }
+                predict(rgbArray);
             }
-            data = context.getImageData(0, 0, 80, 100).data;
-            var rgbArray = []
-            for (var i = 0; i < data.length; i += 4) {
-                rgbArray.push([data[i], data[i + 1], data[i + 2]])
-            }
-            predict(rgbArray);
         };
         tf.loadLayersModel('model/model.json').then(function (model) {
             window.model = model;
