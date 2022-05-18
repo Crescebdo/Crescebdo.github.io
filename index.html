@@ -93,7 +93,7 @@
             ctx.strokeStyle = '#ff0000';
             ctx.strokeRect(left, top, 400, 500);
             ctx.beginPath();
-            for (i = 1; i <= 4; i++) {
+            for (var i = 1; i <= 4; i++) {
                 ctx.moveTo(left, top + i * 100);
                 ctx.lineTo(left + 5 * 80, top + i * 100);
                 ctx.moveTo(left + i * 80, top);
@@ -106,12 +106,12 @@
         var process = function (context) {
             var data = context.getImageData(0, 0, canvas.width, canvas.height).data;
             var rgbArray = []
-            for (i = 0; i < 5; i++) {
-                for (j = 0; j < 5; j++) {
+            for (var i = 0; i < 5; i++) {
+                for (var j = 0; j < 5; j++) {
                     var tempArray = []
                     var curr = (top * 800 + i * 100 * 800 + 40 + j * 80) * 4;
-                    for (k = 0; k < 100; k++) {
-                        for (l = curr; l < curr + 80 * 4; l += 4) {
+                    for (var k = 0; k < 100; k++) {
+                        for (var l = curr; l < curr + 80 * 4; l += 4) {
                             tempArray.push([data[l], data[l + 1], data[l + 2]]);
                         }
                         curr += 800 * 4;
@@ -128,8 +128,8 @@
         // formalize result
         var format = function (result) {
             var str = "";
-            for (i = 0; i < 5; i++) {
-                for (j = 0; j < 5; j++) str += result[i * 5 + j] + ", ";
+            for (var i = 0; i < 5; i++) {
+                for (var j = 0; j < 5; j++) str += result[i * 5 + j] + ", ";
                 str += "\n";
             }
             return str;
