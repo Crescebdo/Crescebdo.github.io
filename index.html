@@ -44,7 +44,7 @@
 <body>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.5.2/dist/tf.min.js"></script>
-    <h1>IZE Image Recognition (alpha )</h1>
+    <h1>IZE Image Recognition (alpha)</h1>
     <div id="upload">
         <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
         <p>You can paste the image (Ctrl+V) too.</p>
@@ -76,13 +76,13 @@
         // Draw original image to canvas
         var drawImageToCanvas = function (context, image) {
             context.clearRect(0, 0, canvas.width, canvas.height);
-            scale = base_image.width / 800.0
-            scaled_height = Math.trunc(base_image.height / scale);
+            scale = image.width / 800.0
+            scaled_height = Math.trunc(image.height / scale);
             if (scaled_height <= 600) {
-                context.drawImage(base_image, 0, 0, base_image.width, base_image.height);
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
             } else {
-                cutoff_height = base_image.height - scale * 600;
-                context.drawImage(base_image, 0, cutoff_height, base_image.width, base_image.height - cutoff_height, 0, 0, canvas.width, canvas.height);
+                cutoff_height = image.height - scale * 600;
+                context.drawImage(image, 0, cutoff_height, image.width, image.height - cutoff_height, 0, 0, canvas.width, canvas.height);
             }
         }
 
@@ -175,8 +175,7 @@
                 var pastedImage = new Image();
                 pastedImage.src = source;
                 pastedImage.onload = function () {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(pastedImage, 0, 0, 800, 600);
+                    drawImageToCanvas(context, pastedImage);
                     process(ctx);
                 };
             };
