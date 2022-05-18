@@ -46,7 +46,7 @@
 <body>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.5.2/dist/tf.min.js"></script>
-    <h1>IZE Image Recognition (alpha )</h1>
+    <h1>IZE Image Recognition (alpha)</h1>
     <div id="upload">
         <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
         <p>You can paste the image (Ctrl+V) too.</p>
@@ -67,7 +67,7 @@
 
         // Upload file handler
         var loadFile = function (event) {
-            base_image = new Image();
+            var base_image = new Image();
             base_image.src = URL.createObjectURL(event.target.files[0]);
             base_image.onload = function () {
                 drawImageToCanvas(context, base_image);
@@ -78,12 +78,12 @@
         // Draw original image to canvas
         var drawImageToCanvas = function (context, image) {
             context.clearRect(0, 0, canvas.width, canvas.height);
-            scale = image.width / 800.0
-            scaled_height = Math.trunc(image.height / scale);
+            var scale = image.width / 800.0
+            var scaled_height = Math.trunc(image.height / scale);
             if (scaled_height <= 600) {
                 context.drawImage(image, 0, 0, canvas.width, canvas.height);
             } else {
-                cutoff_height = image.height - scale * 600;
+                var cutoff_height = image.height - scale * 600;
                 context.drawImage(image, 0, cutoff_height, image.width, image.height - cutoff_height, 0, 0, canvas.width, canvas.height);
             }
         }
@@ -104,13 +104,12 @@
 
         // Process image data and draw additional lines to canvas
         var process = function (context) {
-            data = context.getImageData(0, 0, canvas.width, canvas.height).data;
-            drawLinesToCanvas(context);
-            rgbArray = []
+            var data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+            var rgbArray = []
             for (i = 0; i < 5; i++) {
                 for (j = 0; j < 5; j++) {
-                    tempArray = []
-                    curr = (top * 800 + i * 100 * 800 + 40 + j * 80) * 4;
+                    var tempArray = []
+                    var curr = (top * 800 + i * 100 * 800 + 40 + j * 80) * 4;
                     for (k = 0; k < 100; k++) {
                         for (l = curr; l < curr + 80 * 4; l += 4) {
                             tempArray.push([data[l], data[l + 1], data[l + 2]]);
@@ -123,11 +122,12 @@
             }
             console.log(rgbArray.length);
             predict(rgbArray);
+            drawLinesToCanvas(context);
         }
 
         // formalize result
-        var format = function(result) {
-            str = "";
+        var format = function (result) {
+            var str = "";
             for (i = 0; i < 5; i++) {
                 for (j = 0; j < 5; j++) str += result[i * 5 + j] + ", ";
                 str += "\n";
@@ -141,11 +141,11 @@
         const plants = ["Empty", "Peashooter", "Sunflower", "Wall-nut", "Potato Mine", "Snow Pea", "Chomper", "Repeater", "Puff-shroom", "Fume-shroom", "Scaredy-shroom", "Squash", "Threepeater", "Spikeweed", "Torchwood", "Split Pea", "Starfruit", "Magnet-shroom", "Kernel-pult", "Umbrella Leaf"];
         var predict = function (input) {
             if (window.model) {
-                result = []
+                var result = []
                 input.forEach(element => {
                     window.model.predict([tf.tensor(element).reshape([1, 100, 80, 3])]).array().then(function (scores) {
-                        scores = scores[0]
-                        predicted = scores.indexOf(Math.max(...scores));
+                        var scrs = scores[0]
+                        var predicted = scrs.indexOf(Math.max(...scrs));
                         result.push(plants[predicted]);
                     });
                 });
