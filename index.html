@@ -44,7 +44,7 @@
 <body>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.5.2/dist/tf.min.js"></script>
-    <h1>IZE Image Recognition App</h1>
+    <h1>IZE Image Recognition alpha</h1>
     <div id="upload">
         <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
     </div>
@@ -78,15 +78,13 @@
         tf.loadLayersModel('model/model.json').then(function (model) {
             window.model = model;
         });
+        const plants = ["Empty", "Peashooter", "Sunflower", "Wall-nut", "Potato Mine", "Snow Pea", "Chomper", "Repeater", "Puff-shroom", "Fume-shroom", "Scaredy-shroom", "Squash", "Threepeater", "Spikeweed", "Torchwood", "Split Pea", "Starfruit", "Magnet-shroom", "Kernel-pult", "Umbrella Leaf"];
         var predict = function (input) {
             if (window.model) {
                 window.model.predict([tf.tensor(input).reshape([1, 100, 80, 3])]).array().then(function (scores) {
                     scores = scores[0]
-                    result = []
-                    for (var i = 0; i < scores.length; i++) result.push(Number.parseFloat(scores[i]).toFixed(1))
-                    $('#number').html(result.join(", "));
                     predicted = scores.indexOf(Math.max(...scores));
-                    $('#best').html(predicted);
+                    $('#best').html(plants[predicted]);
                 });
             } else {
                 // The model takes a bit to load, if we are too fast, wait
